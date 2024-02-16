@@ -1,0 +1,11 @@
+<!-- search_results.html -->
+{% if author %}
+  <h1>Search Results:</h1>
+  <ul>
+    {% for student in author %}
+      <li>{{ student.name }}  <a href="{% url 'author_details' student.id %}">{{ student.name }}</a></p></li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <p>No students found.</p>
+{% endif %}

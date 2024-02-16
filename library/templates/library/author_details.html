@@ -1,0 +1,121 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Author Details</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <h1>Author Details</h1>
+
+          
+    <div>
+        <!-- Link button with search icon -->
+        <button>
+            <a href="{% url 'find_author' %}" class="btn btn-primary">
+                <img src="{% static 'images/icons/search_icon.png' %}" alt="Search Icon" width="20" height="20"> 
+            </a>
+        </button>
+    
+        <!-- List button -->
+        <button>
+            <a href="{% url 'author_list' %}" class="btn btn-primary">
+                <img src="{% static 'images/icons/list.png' %}" alt="List Icon" width="20" height="20"> 
+            </a>
+        </button>
+    
+        <!-- Print button -->
+        <button onclick="printContent()">
+            <img src="{% static 'images/icons/printer.png' %}" alt="Printer Icon" width="20" height="20">
+        </button>
+    
+        <!-- Save button -->
+        <button>
+            <a href="{% url 'author_create' %}" class="btn btn-primary">
+                <img src="{% static 'images/icons/save.png' %}" alt="Save Icon" width="20" height="20"> 
+            </a>
+        </button>
+    
+        <!-- Next button -->
+        {% if author.previous %}
+        <button>
+            <a href="{% url 'author_details' author.previous.id %}">
+                <img src="{% static 'images/icons/first.png' %}" alt="First Icon" width="20" height="20">
+            </a>
+        </button>
+        {% endif %}
+    
+        <!-- Previous button -->
+        {% if author.previous %}
+        <button>
+            <a href="{% url 'author_details' author.previous.id %}">
+                <img src="{% static 'images/icons/prev.png' %}" alt="Previous Icon" width="20" height="20">
+            </a>
+        </button>
+        {% endif %}
+    
+        <!-- Next button -->
+        {% if author.next %}
+        <button>
+            <a href="{% url 'author_details' author.next.id %}">
+                <img src="{% static 'images/icons/next.png' %}" alt="Next Icon" width="20" height="20">
+            </a>
+        </button>
+        {% endif %}
+    
+        <!-- Last button -->
+        {% if author.next %}
+        <button>
+            <a href="{% url 'author_details' author.next.id %}">
+                <img src="{% static 'images/icons/last.png' %}" alt="Last Icon" width="20" height="20">
+            </a>
+        </button>
+        {% endif %}
+    </div>
+    
+ <div id="print">
+    <p>Name: {{ author.name }}</p>
+    
+    <h2>Books:</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Category</th>
+                <th>Remarks</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for book in author.book_set.all %}
+            <tr>
+                <td>{{ book.title }}</td>
+                <td>{{ book.category }}</td>
+                <td>{{ book.remarks }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <script>
+        function printContent() {
+            var printDiv = document.getElementById("print");
+            var originalContents = document.body.innerHTML;
+            document.body.innerHTML = printDiv.innerHTML;
+            window.print();
+            document.body.innerHTML = originalContents;
+        }
+    </script>
+</div>
+</body>
+
+</html>

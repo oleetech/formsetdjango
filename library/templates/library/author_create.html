@@ -1,0 +1,156 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{% if form.instance.pk %}Update{% else %}Create{% endif %} Author</title>
+    <!-- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.formset/1.0.0/jquery.formset.min.js" integrity="sha512-UERQNjtEW7kHkFIi1AaLbe4geeEdleoB600mc1nmN3nuqkO2BAwNteUN/h/RzwqtlNXozNr4aFq+ZvRZfoDFCA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdn.tailwindcss.com"></script> -->
+
+   <script src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
+   <script src="{% static 'js/jquery.formset.min.js' %}"></script>
+   <script src="{% static 'js/tailwind.js' %}"></script>
+
+   <script>
+    $(document).ready(function() {
+        // Add button click event
+        bindAddRowButtonClick();
+    
+        function bindAddRowButtonClick() {
+            $('#add-row').click(function() {
+                addRow();
+                bindRemoveRowButtonClick(); // Re-bind click event after adding row
+            });
+        }
+    
+        function addRow() {
+    // Clone the last form container
+    const lastFormContainer = $('.form-container').last();
+    const newFormContainer = lastFormContainer.clone();
+
+    // Clear input values in the cloned form
+    newFormContainer.find('input').val('');
+    newFormContainer.find('select').val('');
+    newFormContainer.find('input[type="hidden"]').remove();
+
+    // Update the input field names with the correct prefix
+    updateFormElementIndices(newFormContainer);
+
+    // Update the total number of forms
+    updateTotalForms();
+
+    // Append the cloned form after the last one
+    lastFormContainer.after(newFormContainer);
+    
+    // Update total forms explicitly after adding row
+    updateTotalForms();
+}
+
+    
+        function updateFormElementIndices(container) {
+    const prefix = 'book_set'; // Update with your formset prefix
+
+    container.find(':input').each(function() {
+        const oldName = $(this).attr('name');
+        if (oldName) { // Check if the input field has a name attribute
+            const parts = oldName.split('-');
+            const newIndex = $('.form-container').length; // Get the index of the new form
+            const newName = parts[0] + '-' + newIndex + '-' + parts.slice(2).join('-');
+            $(this).attr('name', newName);
+        }
+    });
+}
+
+    
+        function updateTotalForms() {
+            const formPrefix = 'book_set'; // Update with your formset prefix
+            const totalFormsInput = $('#id_' + formPrefix + '-TOTAL_FORMS');
+            const newTotalForms = $('.form-container').length;
+            totalFormsInput.val(newTotalForms);
+    
+            // Update the initial number of forms if needed
+            const initialFormsInput = $('#id_' + formPrefix + '-INITIAL_FORMS');
+            if (newTotalForms === parseInt(initialFormsInput.val())) {
+                const newInitialForms = newTotalForms + 1;
+                initialFormsInput.val(newInitialForms);
+            }
+        }
+    
+// Bind click event to remove row buttons
+function bindRemoveRowButtonClick() {
+    $('.remove-row-btn').click(function() {
+        $(this).closest('.form-container').remove();
+        updateFormElementIndices($('.form-container')); // Update form element indices after removing row
+        updateTotalForms(); // Update total form count
+        bindRemoveRowButtonClick(); // Re-bind click event after removing row
+    });
+}
+
+    
+        // Initial binding
+        bindRemoveRowButtonClick();
+    });
+    </script>
+    
+
+    
+</head>
+<body >
+    <h1>{% if form.instance.pk %}Update{% else %}Create{% endif %} Author</h1>
+  <div class="overflow-x-auto">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="px-6 py-4 grid grid-cols-2 gap-4">
+                        <div class="row">
+                            {% for field in form %}
+                       
+                                <label for="{{ field.auto_id }}">{{ field.label }}</label>
+              
+                                  {{ field }}
+                          
+                        
+                            {% endfor %}
+                          </div>
+                    </div>
+                 
+                    
+                    {{ formset.management_form }}
+                    <div class="formset-container">
+                        <table class="w-full border-collapse border border-gray-200">
+                            <thead class="bg-gray-100">
+                                <tr>
+                                    {% for field in formset.empty_form.visible_fields %}
+                                        <th class="border border-gray-200 px-4 py-2">{{ field.label }}</th>
+                                    {% endfor %}
+                                                  
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for form in formset %}
+                                    <tr class="form-container">
+                                        {% for field in form %}
+                                            <td class="border border-gray-200">{{ field }}</td>
+
+                                           
+                                        {% endfor %}
+                                        <!-- <td>
+                                            <button type="button" class="remove-row-btn"><img src="{% static 'images/icons/remove.png' %}" alt="view Icon" width="20" height="20"></button>
+                                        </td> -->
+                                    </tr>
+                                {% endfor %}
+                                                    <!-- Add a remove button in the last cell -->
+
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="px-6 py-4 border-t flex justify-between items-center">
+                        <button type="button" id="add-row" class="text-gray-900 bg-gradient-to-r from-lime-200 via-lime-400 to-lime-500 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-lime-300 dark:focus:ring-lime-800 shadow-lg shadow-lime-500/50 dark:shadow-lg dark:shadow-lime-800/80 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">
+                            <img src="{% static 'images/icons/add.png' %}" alt="view Icon" width="20" height="20">
+                          
+                        </button>
+                        <button type="submit" class="text-white bg-gradient-to-r from-cyan-500 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-cyan-300 dark:focus:ring-cyan-800 font-medium rounded-lg text-sm px-5 py-2.5">{% if form.instance.pk %}Update{% else %}Save{% endif %} </button>
+                    </div>
+            </form>
+            </div>
+</body>
+</html>
