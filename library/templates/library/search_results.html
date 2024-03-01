@@ -1,11 +1,14 @@
 <!-- search_results.html -->
-{% if author %}
+{% if authors %}
   <h1>Search Results:</h1>
-  <ul>
-    {% for student in author %}
-      <li>{{ student.name }}  <a href="{% url 'author_details' student.id %}">{{ student.name }}</a></p></li>
-    {% endfor %}
-  </ul>
+  {% for author in authors %}
+    <h2>{{ author.name }}</h2>
+    <ul>
+      {% for book in author.book_set.all %}
+        <li>{{ book.title }} - {{ book.category }} - {{ book.remarks }}</li>
+      {% endfor %}
+    </ul>
+  {% endfor %}
 {% else %}
-  <p>No result found.</p>
+  <p>No result found. d</p>
 {% endif %}
