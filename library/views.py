@@ -69,34 +69,34 @@ def author_delete(request, author_id):
 
 def find_author(request):
     if request.method == 'POST':
-        form = AuthorForm(request.POST)
+        form = SearchForm(request.POST)
         if form.is_valid():
             filter_kwargs = {}
+            for field_name, field_value in form.cleaned_data.items():
+                if field_value:
+                    filter_kwargs[f'{field_name}__icontains'] = field_value
 
-            name = form.cleaned_data['name']
-            if name:
-                filter_kwargs['name__icontains'] = name
-
-
-            # Perform the search using the form input
-                author = Author.objects.filter(**filter_kwargs)
-                if author.count() == 1:
-                    # Only one result found, redirect to the update form
-                    author = author.first()
-                    form = AuthorForm(instance=author)
-                    formset = BookFormSet(instance=author)
-                    context = {
-                        'form': form,
-                        'formset': formset,
-                    }
-                    return render(request, 'library/author_create.html', context)
-                # Pass the search results to the template
-                context = {'author': author}
+            authors = Author.objects.filter(**filter_kwargs)
+            if authors.count() == 1:
+                # Only one result found, show AuthorForm with the result
+                author = authors.first()
+                form = AuthorForm(instance=author)
+                context = {
+                    'form': form,
+                    'single_author': True,  # Flag to identify single author result
+                }
+                print("Single author found:", author)  # Print the single author found
+                return render(request, 'library/author_create.html', context)
+            else:
+                # Multiple results found, show the list of authors
+                print("Multiple authors found:", authors)  # Print the multiple authors found
+                context = {'authors': authors}
                 return render(request, 'library/search_results.html', context)
     else:
         form = SearchForm()
 
-        return render(request, 'library/search_form.html', {'form': form})
+    return render(request, 'library/search_form.html', {'form': form})
+
 
 
 def author_details(request, author_id):

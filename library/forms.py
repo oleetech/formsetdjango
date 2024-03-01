@@ -52,17 +52,18 @@ BookFormSet = forms.inlineformset_factory(
 class SearchForm(forms.ModelForm):
     class Meta:
         model = Author
-        fields = ['name']
+        fields = ['name', 'age']  # Update fields as per your requirement
 
     def __init__(self, *args, **kwargs):
         super(SearchForm, self).__init__(*args, **kwargs)
-        self.fields['name'].required = False
-     
         for field_name, field in self.fields.items():
             field.widget.attrs.update({
-                'class': 'form-control',
+                'class': 'border rounded-md  w-full',
                 'id': f"defaultForm-{field_name}",
-            })   
+            })
+            # Set all fields as not required
+            self.fields[field_name].required = False
+
 
 class AuthorDetailsForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
