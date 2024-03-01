@@ -12,6 +12,17 @@
    <script src="{% static 'js/tailwind.js' %}"></script>
 
    <script>
+
+// $(document).on('change', '[id^="id_book_set-"][id$="-DELETE"]', function() {
+//     if ($(this).is(':checked')) {
+//         // Optionally hide the row immediately for visual feedback
+//         $(this).closest('.form-container').hide();
+//     } else {
+//         // Show it again if the user unchecks the box
+//         $(this).closest('.form-container').show();
+//     }
+// });
+
     $(document).ready(function() {
         // Add button click event
         bindAddRowButtonClick();
@@ -24,73 +35,59 @@
         }
     
         function addRow() {
-    // Clone the last form container
-    const lastFormContainer = $('.form-container').last();
-    const newFormContainer = lastFormContainer.clone();
-
-    // Clear input values in the cloned form
-    newFormContainer.find('input').val('');
-    newFormContainer.find('select').val('');
-    newFormContainer.find('input[type="hidden"]').remove();
-
-    // Update the input field names with the correct prefix
-    updateFormElementIndices(newFormContainer);
-
-    // Update the total number of forms
-    updateTotalForms();
-
-    // Append the cloned form after the last one
-    lastFormContainer.after(newFormContainer);
+            // Clone the last form container
+            const lastFormContainer = $('.form-container').last();
+            const newFormContainer = lastFormContainer.clone();
     
-    // Update total forms explicitly after adding row
-    updateTotalForms();
-}
-
+            // Clear input values in the cloned form
+            newFormContainer.find('input').val('');
+            newFormContainer.find('select').val('');
+            newFormContainer.find('input[type="hidden"]').remove();
     
-        function updateFormElementIndices(container) {
-    const prefix = 'book_set'; // Update with your formset prefix
-
-    container.find(':input').each(function() {
-        const oldName = $(this).attr('name');
-        if (oldName) { // Check if the input field has a name attribute
-            const parts = oldName.split('-');
-            const newIndex = $('.form-container').length; // Get the index of the new form
-            const newName = parts[0] + '-' + newIndex + '-' + parts.slice(2).join('-');
-            $(this).attr('name', newName);
+            // Append the cloned form after the last one
+            lastFormContainer.after(newFormContainer);
+    
+            // Update indices and total forms after adding a new row
+            updateFormElementIndices();
+            updateTotalForms();
         }
-    });
-}
-
+    
+        function updateFormElementIndices() {
+            const prefix = 'book_set'; // Update with your formset prefix
+    
+            $('.form-container').each(function(index, container) {
+                $(container).find(':input').each(function() {
+                    const name = $(this).attr('name');
+                    if (name) { // Check if the input field has a name attribute
+                        const parts = name.split('-');
+                        const newName = `${parts[0]}-${index}-${parts.slice(2).join('-')}`;
+                        $(this).attr('name', newName);
+                        $(this).attr('id', `id_${newName}`); // Update the id as well if necessary
+                    }
+                });
+            });
+        }
     
         function updateTotalForms() {
             const formPrefix = 'book_set'; // Update with your formset prefix
             const totalFormsInput = $('#id_' + formPrefix + '-TOTAL_FORMS');
             const newTotalForms = $('.form-container').length;
             totalFormsInput.val(newTotalForms);
-    
-            // Update the initial number of forms if needed
-            const initialFormsInput = $('#id_' + formPrefix + '-INITIAL_FORMS');
-            if (newTotalForms === parseInt(initialFormsInput.val())) {
-                const newInitialForms = newTotalForms + 1;
-                initialFormsInput.val(newInitialForms);
-            }
         }
     
-// Bind click event to remove row buttons
-function bindRemoveRowButtonClick() {
-    $('.remove-row-btn').click(function() {
-        $(this).closest('.form-container').remove();
-        updateFormElementIndices($('.form-container')); // Update form element indices after removing row
-        updateTotalForms(); // Update total form count
-        bindRemoveRowButtonClick(); // Re-bind click event after removing row
-    });
-}
-
+        function bindRemoveRowButtonClick() {
+            $('.remove-row-btn').off('click').click(function() { // Use .off('click') to remove previous event bindings
+                $(this).closest('.form-container').remove();
+                updateFormElementIndices(); // Update form element indices after removing row
+                updateTotalForms(); // Update total form count
+            });
+        }
     
         // Initial binding
         bindRemoveRowButtonClick();
     });
     </script>
+    
     
 
     
@@ -127,14 +124,25 @@ function bindRemoveRowButtonClick() {
                             </thead>
                             <tbody>
                                 {% for form in formset %}
+
                                     <tr class="form-container">
                                         {% for field in form %}
                                             <td class="border border-gray-200">{{ field }}</td>
 
                                            
                                         {% endfor %}
+                                        <td>
+                                            <!-- Conditionally show the remove button -->
+                                            {% if not form.instance.pk %}
+                                                <button type="button" class="remove-row-btn"><img src="{% static 'images/icons/remove.png' %}" alt="Remove Icon" width="20" height="20"></button>
+                                            {% endif %}
+                                        </td>
+
+
+
                                         <!-- <td>
-                                            <button type="button" class="remove-row-btn"><img src="{% static 'images/icons/remove.png' %}" alt="view Icon" width="20" height="20"></button>
+                                            <input type="checkbox" name="{{ form.prefix }}-DELETE" id="id_{{ form.prefix }}-DELETE">
+                                            <label for="id_{{ form.prefix }}-DELETE">Delete</label>
                                         </td> -->
                                     </tr>
                                 {% endfor %}

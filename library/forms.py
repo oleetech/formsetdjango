@@ -45,7 +45,7 @@ BookFormSet = forms.inlineformset_factory(
     Book,
     form=BookForm,
     extra=1,
-    can_delete=False,
+    can_delete=True,
 )
 
 
