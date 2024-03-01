@@ -99,7 +99,14 @@ def find_author(request):
 
 
 
+
 def author_details(request, author_id):
     author = get_object_or_404(Author, id=author_id)
-    context = {'author': author}
+    fields = ['title', 'category', 'remarks']  # Define the fields you want to display dynamically
+    books = author.book_set.all()
+    context = {
+        'author': author,
+        'fields': fields,
+        'books': books,
+    }
     return render(request, 'library/author_details.html', context)

@@ -1,0 +1,24 @@
+# Django related files
+*.pyc
+__pycache__
+db.sqlite3
+*.pyc
+*.pyo
+local_settings.py
+
+# Static files
+staticfiles/
+
+# Media files
+media/
+
+# Django development server
+.DS_Store
+
+# Ignore migrations
+*/migrations/
+
+# Ignore database settings
+database.yml
+# Node.js dependencies
+node_modules/
