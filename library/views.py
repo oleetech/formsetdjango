@@ -5,7 +5,7 @@ from .models import Author,Book
 def author_create(request):
     if request.method == 'POST':
         form = AuthorForm(request.POST)
-        formset = BookFormSet(request.POST)
+        formset = BookFormSet(request.POST, prefix='book')
 
         if form.is_valid() and formset.is_valid():
             author = form.save()
@@ -14,7 +14,7 @@ def author_create(request):
             return redirect('author_list')
     else:
         form = AuthorForm()
-        formset = BookFormSet()
+        formset = BookFormSet(prefix='book')
 
     context = {
         'form': form,
@@ -28,10 +28,10 @@ def author_update(request, author_id=None):
     if author_id:
         author = get_object_or_404(Author, id=author_id)
         form = AuthorForm(request.POST or None, instance=author)
-        formset = BookFormSet(request.POST or None, instance=author)
+        formset = BookFormSet(request.POST or None, instance=author, prefix='book')
     else:
         form = AuthorForm(request.POST or None)
-        formset = BookFormSet(request.POST or None)
+        formset = BookFormSet(request.POST or None, prefix='book')
 
     if request.method == 'POST':
         if form.is_valid() and formset.is_valid():
@@ -45,6 +45,7 @@ def author_update(request, author_id=None):
         'formset': formset,
     }
     return render(request, 'library/author_create.html', context)
+
 
 
 def author_list(request):
