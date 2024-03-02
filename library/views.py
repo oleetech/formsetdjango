@@ -78,18 +78,16 @@ def find_author(request):
 
             authors = Author.objects.filter(**filter_kwargs)
             if authors.count() == 1:
-                # Only one result found, show AuthorForm with the result
+                # Only one result found, show author_details.html with data of the single author
                 author = authors.first()
-                form = AuthorForm(instance=author)
+                books = author.book_set.all()
                 context = {
-                    'form': form,
-                    'single_author': True,  # Flag to identify single author result
+                    'author': author,
+                    'books': books,
                 }
-                print("Single author found:", author)  # Print the single author found
-                return render(request, 'library/author_create.html', context)
+                return render(request, 'library/author_details.html', context)
             else:
                 # Multiple results found, show the list of authors
-                print("Multiple authors found:", authors)  # Print the multiple authors found
                 context = {'authors': authors}
                 return render(request, 'library/search_results.html', context)
     else:
